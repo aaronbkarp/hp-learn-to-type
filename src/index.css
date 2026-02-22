@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #1a0a2e;
+    color: white;
+    font-family: 'Crimson Text', serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  /* Prevent text selection during gameplay */
+  .game-area {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer components {
+  /* HP-style glowing button */
+  .btn-hp {
+    @apply font-hp-heading font-semibold px-6 py-3 rounded-lg border-2 border-hp-gold text-hp-gold
+           transition-all duration-200 cursor-pointer
+           hover:bg-hp-gold hover:text-hp-navy hover:shadow-[0_0_20px_#c9a84c];
+  }
+
+  .btn-hp-primary {
+    @apply btn-hp bg-hp-gold text-hp-navy hover:bg-hp-gold-light;
+  }
+
+  /* Falling spell card */
+  .spell-card {
+    @apply absolute rounded-lg border px-3 py-1 text-sm font-hp-heading
+           pointer-events-none select-none whitespace-nowrap;
+    background: rgba(45, 27, 105, 0.85);
+    border-color: rgba(201, 168, 76, 0.5);
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.2), inset 0 0 8px rgba(201, 168, 76, 0.05);
+    backdrop-filter: blur(4px);
+  }
+
+  .spell-card.targeted {
+    border-color: #c9a84c;
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.6), 0 0 40px rgba(201, 168, 76, 0.2);
+    background: rgba(45, 27, 105, 0.95);
+  }
+
+  /* Parchment panel for UI elements */
+  .parchment {
+    background: linear-gradient(135deg, #f4e4c1 0%, #e8d5a3 50%, #d4b896 100%);
+    color: #3d2b1f;
+    border: 2px solid #8b6914;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(139, 105, 20, 0.1);
+  }
+
+  /* Health bar container */
+  .health-bar-track {
+    @apply relative h-4 rounded-full overflow-hidden;
+    background: rgba(13, 7, 32, 0.8);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+  }
+
+  .health-bar-fill {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+}
+
+@layer utilities {
+  /* Glow text effects */
+  .text-glow-gold {
+    text-shadow: 0 0 10px #c9a84c, 0 0 20px #c9a84c66;
+  }
+
+  .text-glow-teal {
+    text-shadow: 0 0 10px #00f5d4, 0 0 20px #00f5d466;
+  }
+
+  .text-glow-red {
+    text-shadow: 0 0 10px #ef4444, 0 0 20px #ef444466;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-hp::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-hp::-webkit-scrollbar-track {
+    background: #1a0a2e;
+  }
+  .scrollbar-hp::-webkit-scrollbar-thumb {
+    background: #c9a84c;
+    border-radius: 3px;
+  }
+}
