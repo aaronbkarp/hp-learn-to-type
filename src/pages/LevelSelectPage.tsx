@@ -1,14 +1,25 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../components/auth/AuthProvider'
 import { useProgress } from '../hooks/useProgress'
 import LevelMap from '../components/ui/LevelMap'
 import BackgroundScene from '../components/game/BackgroundScene'
+import { HOUSES, House } from '../lib/houseData'
 
 export default function LevelSelectPage() {
   const { user, profile, signOut } = useAuthContext()
   const { progress, levelScores, maxUnlockedLevel, loading } = useProgress(user?.id ?? null)
   const navigate = useNavigate()
+
+  // Redirect to sorting ceremony if user has no house yet
+  useEffect(() => {
+    if (profile !== null && !profile.house) {
+      navigate('/sorting', { replace: true })
+    }
+  }, [profile, navigate])
+
+  const house = profile?.house ? HOUSES[profile.house as House] : null
 
   return (
     <div className="relative w-full min-h-screen overflow-y-auto overflow-x-hidden">
@@ -30,6 +41,21 @@ export default function LevelSelectPage() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* House badge */}
+            {house && (
+              <div
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-hp-body border"
+                style={{
+                  background:  `${house.colors.primary}33`,
+                  borderColor: `${house.colors.secondary}66`,
+                  color:        house.colors.secondary,
+                }}
+              >
+                <span>{house.crest}</span>
+                <span className="hidden sm:inline">{house.name}</span>
+              </div>
+            )}
+
             {/* Profile info */}
             <div className="flex items-center gap-2">
               {profile?.avatar_url && (

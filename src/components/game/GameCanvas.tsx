@@ -11,6 +11,7 @@ import { SpellEffectOverlay } from './SpellEffect'
 interface GameCanvasProps {
   config:     LevelConfig
   onGameEnd:  (result: GameEndResult) => void
+  onQuit:     () => void
 }
 
 // Countdown before game starts
@@ -52,9 +53,11 @@ function Countdown({ onComplete }: { onComplete: () => void }) {
 function StartOverlay({
   config,
   onStartCountdown,
+  onQuit,
 }: {
   config: LevelConfig
   onStartCountdown: () => void
+  onQuit: () => void
 }) {
   return (
     <motion.div
@@ -63,6 +66,14 @@ function StartOverlay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* Back to map button */}
+      <button
+        onClick={onQuit}
+        className="absolute top-4 left-4 text-white/40 hover:text-white/70 text-sm font-hp-body transition-colors flex items-center gap-1"
+      >
+        ← Level Map
+      </button>
+
       <div className="text-center max-w-md px-6">
         <div className="text-5xl mb-4">{config.mapIcon}</div>
         <h2 className="font-hp-heading text-3xl text-hp-gold text-glow-gold mb-1">
@@ -109,7 +120,7 @@ function StartOverlay({
 }
 
 // Pause overlay
-function PauseOverlay({ onResume }: { onResume: () => void }) {
+function PauseOverlay({ onResume, onQuit }: { onResume: () => void; onQuit: () => void }) {
   return (
     <motion.div
       className="absolute inset-0 flex flex-col items-center justify-center z-40"
@@ -133,12 +144,18 @@ function PauseOverlay({ onResume }: { onResume: () => void }) {
           Resume ▶
         </motion.button>
         <p className="text-white/30 text-xs font-hp-body mt-3">or press Escape</p>
+        <button
+          onClick={onQuit}
+          className="mt-6 text-white/40 hover:text-white/70 text-sm font-hp-body transition-colors block mx-auto"
+        >
+          ← Quit to Level Map
+        </button>
       </div>
     </motion.div>
   )
 }
 
-export default function GameCanvas({ config, onGameEnd }: GameCanvasProps) {
+export default function GameCanvas({ config, onGameEnd, onQuit }: GameCanvasProps) {
   const [phase, setPhase] = useState<'pregame' | 'countdown' | 'playing'>('pregame')
 
   // Separate RAF just for smooth visual position updates (doesn't touch game logic)
@@ -219,13 +236,13 @@ export default function GameCanvas({ config, onGameEnd }: GameCanvasProps) {
       {/* Layer 5: Overlays (pre-game, countdown, pause) */}
       <AnimatePresence>
         {phase === 'pregame' && (
-          <StartOverlay key="start" config={config} onStartCountdown={handleStartCountdown} />
+          <StartOverlay key="start" config={config} onStartCountdown={handleStartCountdown} onQuit={onQuit} />
         )}
         {phase === 'countdown' && (
           <Countdown key="countdown" onComplete={handleCountdownComplete} />
         )}
         {phase === 'playing' && gameState.isPaused && (
-          <PauseOverlay key="pause" onResume={togglePause} />
+          <PauseOverlay key="pause" onResume={togglePause} onQuit={onQuit} />
         )}
       </AnimatePresence>
     </div>

@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import LevelSelectPage from './pages/LevelSelectPage'
 import GamePage from './pages/GamePage'
 import StatsPage from './pages/StatsPage'
+import SortingPage from './pages/SortingPage'
 
 function LoadingScreen() {
   return (
@@ -37,11 +38,12 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/"      element={<LoginPage />} />
-      <Route path="/levels" element={<ProtectedRoute><LevelSelectPage /></ProtectedRoute>} />
-      <Route path="/game"   element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
-      <Route path="/stats"  element={<ProtectedRoute><StatsPage /></ProtectedRoute>} />
-      <Route path="*"       element={<Navigate to="/" replace />} />
+      <Route path="/"         element={<LoginPage />} />
+      <Route path="/sorting"  element={<ProtectedRoute><SortingPage /></ProtectedRoute>} />
+      <Route path="/levels"   element={<ProtectedRoute><LevelSelectPage /></ProtectedRoute>} />
+      <Route path="/game"     element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+      <Route path="/stats"    element={<ProtectedRoute><StatsPage /></ProtectedRoute>} />
+      <Route path="*"         element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

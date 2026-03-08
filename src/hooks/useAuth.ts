@@ -33,9 +33,15 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    // Load initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Load initial session — race against a 5s timeout so we never hang forever
+    const sessionPromise = supabase.auth.getSession().then(async ({ data: { session } }) => {
       const profile = session?.user ? await fetchProfile(session.user.id) : null
+      return { session, profile }
+    })
+    const timeoutPromise = new Promise<{ session: null; profile: null }>(resolve =>
+      setTimeout(() => resolve({ session: null, profile: null }), 5000),
+    )
+    Promise.race([sessionPromise, timeoutPromise]).then(({ session, profile }) => {
       setState({ session, user: session?.user ?? null, profile, loading: false, error: null })
     })
 
@@ -69,6 +75,14 @@ export function useAuth() {
     setState({ session: null, user: null, profile: null, loading: false, error: null })
   }, [])
 
+  // Force re-fetch the profile from the DB (e.g. after saving house assignment)
+  const refreshProfile = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return
+    const profile = await fetchProfile(session.user.id)
+    setState(prev => ({ ...prev, profile }))
+  }, [fetchProfile])
+
   return {
     session:         state.session,
     user:            state.user,
@@ -78,5 +92,6 @@ export function useAuth() {
     isAuthenticated: !!state.session,
     signInWithGoogle,
     signOut,
+    refreshProfile,
   }
 }

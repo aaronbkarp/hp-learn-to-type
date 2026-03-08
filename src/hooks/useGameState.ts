@@ -8,6 +8,7 @@ import {
   EFFECT_DURATION_MS,
 } from '../lib/gameEngine'
 import { LevelConfig, calculateScore, getAccuracy } from '../lib/levelConfig'
+import { speakSpell, playMissSound } from '../lib/audio'
 
 export interface GameEndResult {
   reason:      'health' | 'complete'
@@ -45,12 +46,17 @@ export function useGameState(
     if (!state.isRunning || state.isPaused || state.isGameOver) return
 
     const cfg = configRef.current
+    const prevMissed = state.spellsMissed
     const { newState, shouldEnd, endReason } = tickGameState(
       state,
       cfg,
       now,
       cfg.spellsToComplete,
     )
+    // Play miss sound for each new spell that hit the ground this tick
+    if (newState.spellsMissed > prevMissed) {
+      playMissSound()
+    }
 
     if (shouldEnd && !hasEndedRef.current) {
       hasEndedRef.current = true
@@ -132,6 +138,8 @@ export function useGameState(
     const { matchedId, matchedSpell } = handleKeyPress(key, state.fallingSpells)
 
     if (!matchedId || !matchedSpell) return  // No match — no penalty
+
+    speakSpell(matchedSpell.name)
 
     setGameState(prev => {
       const hitSpell = prev.fallingSpells.find((s): s is FallingSpellState => s.id === matchedId)

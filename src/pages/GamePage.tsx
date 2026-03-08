@@ -72,6 +72,7 @@ export default function GamePage() {
         key={gameKey}
         config={config}
         onGameEnd={handleGameEnd}
+        onQuit={handleLevelMap}
       />
 
       {/* Post-game overlays rendered on top */}
