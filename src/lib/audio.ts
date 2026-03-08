@@ -1,20 +1,16 @@
 // ---- Spell name: Web Speech API ----
 
-let currentUtterance: SpeechSynthesisUtterance | null = null
-
 export function speakSpell(name: string): void {
   if (typeof window === 'undefined' || !window.speechSynthesis) return
 
   // Cancel any in-progress speech so we don't queue up a backlog
   window.speechSynthesis.cancel()
-  currentUtterance = null
 
   const utt = new SpeechSynthesisUtterance(name)
   utt.rate   = 0.75  // slow and deliberate
   utt.pitch  = 0.85  // slightly lower — authoritative
   utt.volume = 1.0
 
-  currentUtterance = utt
   window.speechSynthesis.speak(utt)
 }
 

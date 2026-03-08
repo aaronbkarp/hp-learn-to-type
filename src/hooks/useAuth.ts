@@ -33,27 +33,33 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    // Load initial session — race against a 5s timeout so we never hang forever
-    const sessionPromise = supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const profile = session?.user ? await fetchProfile(session.user.id) : null
-      return { session, profile }
-    })
-    const timeoutPromise = new Promise<{ session: null; profile: null }>(resolve =>
-      setTimeout(() => resolve({ session: null, profile: null }), 5000),
-    )
-    Promise.race([sessionPromise, timeoutPromise]).then(({ session, profile }) => {
-      setState({ session, user: session?.user ?? null, profile, loading: false, error: null })
-    })
+    // Safety net: if onAuthStateChange doesn't fire within 3s, unblock loading anyway
+    const safetyTimer = setTimeout(() => {
+      setState(prev => prev.loading ? { ...prev, loading: false } : prev)
+    }, 3000)
 
-    // Subscribe to auth changes (login, logout, token refresh)
+    // onAuthStateChange fires immediately with INITIAL_SESSION — no need for a separate getSession() call
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        const profile = session?.user ? await fetchProfile(session.user.id) : null
-        setState({ session, user: session?.user ?? null, profile, loading: false, error: null })
+        // Immediately unblock the UI — don't wait for the profile DB fetch
+        setState({ session, user: session?.user ?? null, profile: null, loading: false, error: null })
+
+        // Fetch profile in the background, then slot it in
+        if (session?.user) {
+          try {
+            const profile = await fetchProfile(session.user.id)
+            setState(prev => ({ ...prev, profile }))
+          } catch {
+            // Profile unavailable — user can still navigate
+          }
+        }
       },
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(safetyTimer)
+      subscription.unsubscribe()
+    }
   }, [fetchProfile])
 
   const signInWithGoogle = useCallback(async () => {
