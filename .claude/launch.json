@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "Vite Dev Server",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/Users/aaron/Dev/CC_Test/hp-learn-to-type/node_modules/.bin/vite",
+      "runtimeArgs": [],
       "port": 5173
     }
   ]
