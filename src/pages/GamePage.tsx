@@ -30,9 +30,8 @@ export default function GamePage() {
 
   const handleGameEnd = useCallback(async (result: GameEndResult) => {
     setLastResult(result)
-    setPhase(result.passed ? 'complete' : 'gameover')
 
-    // Save to Supabase
+    // Save first so maxUnlockedLevel is updated before LevelComplete renders
     await saveGameResult({
       levelPlayed:  safeLevel,
       spellsTyped:  result.spellsTyped,
@@ -41,6 +40,8 @@ export default function GamePage() {
       completed:    result.passed,
       durationSecs: result.durationSecs,
     })
+
+    setPhase(result.passed ? 'complete' : 'gameover')
   }, [safeLevel, saveGameResult])
 
   const handleReplay = useCallback(() => {

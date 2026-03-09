@@ -33,10 +33,15 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    // Safety net: if onAuthStateChange doesn't fire within 3s, unblock loading anyway
+    // OAuth callbacks (code= or access_token=) need more time for the exchange on slow networks
+    const hasOAuthCallback = window.location.search.includes('code=') ||
+      window.location.hash.includes('access_token=')
+    const safetyMs = hasOAuthCallback ? 10000 : 3000
+
+    // Safety net: if onAuthStateChange doesn't fire within the timeout, unblock loading anyway
     const safetyTimer = setTimeout(() => {
       setState(prev => prev.loading ? { ...prev, loading: false } : prev)
-    }, 3000)
+    }, safetyMs)
 
     // onAuthStateChange fires immediately with INITIAL_SESSION — no need for a separate getSession() call
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
